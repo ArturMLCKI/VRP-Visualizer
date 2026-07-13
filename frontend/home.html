@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>VRP Visualizer</title>
+
+    <link 
+        rel="stylesheet" 
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""
+    />
+</head>
+
+<body>
+
+    <h3>Enter Address</h3>
+
+    <form method="POST">
+
+        <input 
+            type="text" 
+            name="address" 
+            placeholder="Enter address"
+        >
+
+        <br><br>
+
+        <input 
+            type="text" 
+            name="x" 
+            placeholder="Enter X coordinate (latitude)"
+        >
+
+        <br><br>
+
+        <input 
+            type="text" 
+            name="y" 
+            placeholder="Enter Y coordinate (longitude)"
+        >
+
+        <br><br>
+
+        <input 
+            type="submit" 
+            value="Submit"
+        >
+
+    </form>
+
+
+    <br>
+
+
+    <div id="myMap" style="width: 100%; height: 450px;"></div>
+
+
+    <script 
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin="">
+    </script>
+
+
+    <script>
+
+        function showMap(id, lat, lon, label) {
+
+            const mapLayer = L.tileLayer(
+                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                {
+                    maxZoom: 19,
+                    attribution:
+                    '&copy; OpenStreetMap contributors'
+                }
+            );
+
+
+            const satLayer = L.tileLayer(
+                'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                {
+                    maxZoom: 19,
+                    attribution:
+                    '&copy; ESRI'
+                }
+            );
+
+            const roadsLayer = L.tileLayer(
+                'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+                {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+                }
+            );
+
+
+            const map = L.map(id, {
+                layers: [mapLayer],
+                center: [lat, lon],
+                zoom: 14,
+                scrollWheelZoom: false
+            });
+
+
+            const marker = L.marker([lat, lon])
+                .addTo(map)
+                .bindPopup(label);
+
+            
+
+
+            L.control.layers(
+                {
+                    "Map": mapLayer,
+                    "Satellite": satLayer,
+                    "Roads": roadsLayer
+
+                },
+                {
+                    "Marker": marker
+                }
+            ).addTo(map);
+
+        }
+
+
+
+        document.addEventListener("DOMContentLoaded", () => {
+
+            showMap(
+                "myMap",
+                {{ x }},
+                {{ y }},
+                {{ address | tojson }}
+            );
+
+        });
+
+
+    </script>
+
+
+</body>
+</html>
