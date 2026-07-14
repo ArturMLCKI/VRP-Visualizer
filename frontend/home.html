@@ -13,13 +13,15 @@
 
 <body>
 
-    <h3>Enter Address</h3>
+    <h3>Enter Start and Destination Addresses</h3>
 
     <form method="POST">
 
+        <h4>Start</h4>
+
         <input 
             type="text" 
-            name="address" 
+            name="start_address" 
             placeholder="Enter address"
         >
 
@@ -27,7 +29,7 @@
 
         <input 
             type="text" 
-            name="x" 
+            name="start_x" 
             placeholder="Enter X coordinate (latitude)"
         >
 
@@ -35,7 +37,33 @@
 
         <input 
             type="text" 
-            name="y" 
+            name="start_y" 
+            placeholder="Enter Y coordinate (longitude)"
+        >
+
+        <br><br>
+
+        <h4>Destination</h4>
+
+        <input 
+            type="text" 
+            name="destination_address" 
+            placeholder="Enter address"
+        >
+
+        <br><br>
+
+        <input 
+            type="text" 
+            name="destination_x" 
+            placeholder="Enter X coordinate (latitude)"
+        >
+
+        <br><br>
+
+        <input 
+            type="text" 
+            name="destination_y" 
             placeholder="Enter Y coordinate (longitude)"
         >
 
@@ -64,17 +92,16 @@
 
     <script>
 
-        function showMap(id, lat, lon, label) {
+        function showMap(id, startLat, startLon, startLabel, destLat, destLon, destLabel) {
 
-            const mapLayer = L.tileLayer(
-                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            const roadsLayer = L.tileLayer(
+                'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
                 {
                     maxZoom: 19,
                     attribution:
-                    '&copy; OpenStreetMap contributors'
+                    '&copy; OpenStreetMap contributors &copy; CARTO'
                 }
             );
-
 
             const satLayer = L.tileLayer(
                 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -85,39 +112,32 @@
                 }
             );
 
-            const roadsLayer = L.tileLayer(
-                'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-                {
-                    maxZoom: 19,
-                    attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
-                }
-            );
-
 
             const map = L.map(id, {
-                layers: [mapLayer],
-                center: [lat, lon],
+                layers: [roadsLayer],
+                center: [startLat, startLon],
                 zoom: 14,
                 scrollWheelZoom: false
             });
 
 
-            const marker = L.marker([lat, lon])
+            const start_marker = L.marker([startLat, startLon])
                 .addTo(map)
-                .bindPopup(label);
+                .bindPopup(startLabel);
 
-            
+            const destination_marker = L.marker([destLat, destLon])
+                .addTo(map)
+                .bindPopup(destLabel);
 
 
             L.control.layers(
                 {
-                    "Map": mapLayer,
-                    "Satellite": satLayer,
-                    "Roads": roadsLayer
-
+                    "Roads": roadsLayer,
+                    "Satellite": satLayer
                 },
                 {
-                    "Marker": marker
+                    "Start": start_marker,
+                    "Destination": destination_marker
                 }
             ).addTo(map);
 
@@ -129,9 +149,12 @@
 
             showMap(
                 "myMap",
-                {{ x }},
-                {{ y }},
-                {{ address | tojson }}
+                {{ start_x }},
+                {{ start_y }},
+                {{ start_address | tojson }},
+                {{ destination_x }},
+                {{ destination_y }},
+                {{ destination_address | tojson }}
             );
 
         });
